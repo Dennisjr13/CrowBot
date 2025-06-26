@@ -1,5 +1,6 @@
 """
-Copyright © Krypton 2019-Present - https://github.com/kkrypt0nn (https://krypton.ninja)
+Copyright © Krypton 2019-2025 - https://github.com/kkrypt0nn (https://krypton.ninja)
+Copyright © Dennisjr13 2025-Present - https://github.com/dennisjr13
 Description:
 🐍 A simple template to start to code your own and personalized Discord bot in Python
 
