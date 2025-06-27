@@ -138,6 +138,7 @@ class DiscordBot(commands.Bot):
         self.database = None
         self.bot_prefix = os.getenv("PREFIX")
         self.invite_link = os.getenv("INVITE_LINK")
+        self.tornstats_api_key = os.getenv("TORNSTATS_API_KEY")
 
     async def init_db(self) -> None:
         async with aiosqlite.connect(
@@ -154,7 +155,11 @@ class DiscordBot(commands.Bot):
         """
         The code in this function is executed whenever the bot will start.
         """
-        for file in os.listdir(f"{os.path.realpath(os.path.dirname(__file__))}/cogs"):
+        default_cogs = os.listdir(f"{os.path.realpath(os.path.dirname(__file__))}/cogs/default")
+        default_cogs = list(map(lambda x: "default." + x, default_cogs))
+        torn_cogs = os.listdir(f"{os.path.realpath(os.path.dirname(__file__))}/cogs/torn")
+        torn_cogs = list(map(lambda x: "torn." + x, torn_cogs))
+        for file in [*default_cogs, *torn_cogs]:
             if file.endswith(".py"):
                 extension = file[:-3]
                 try:

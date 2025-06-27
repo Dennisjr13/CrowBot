@@ -2,7 +2,7 @@
 Copyright © Krypton 2019-2025 - https://github.com/kkrypt0nn (https://krypton.ninja)
 Copyright © Dennisjr13 2025-Present - https://github.com/dennisjr13
 Description:
-🐍 A simple template to start to code your own and personalized Discord bot in Python
+A simple template to start to code your own and personalized Discord bot in Python
 
 Version: 6.3.0
 """
@@ -19,7 +19,7 @@ class Owner(commands.Cog, name="owner"):
 
     @commands.command(
         name="sync",
-        description="Synchonizes the slash commands.",
+        description="Synchronizes the slash commands.",
     )
     @app_commands.describe(scope="The scope of the sync. Can be `global` or `guild`")
     @commands.is_owner()
@@ -55,7 +55,7 @@ class Owner(commands.Cog, name="owner"):
 
     @commands.command(
         name="unsync",
-        description="Unsynchonizes the slash commands.",
+        description="Unsynchronizes the slash commands.",
     )
     @app_commands.describe(
         scope="The scope of the sync. Can be `global`, `current_guild` or `guild`"

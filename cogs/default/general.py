@@ -2,7 +2,7 @@
 Copyright © Krypton 2019-2025 - https://github.com/kkrypt0nn (https://krypton.ninja)
 Copyright © Dennisjr13 2025-Present - https://github.com/dennisjr13
 Description:
-🐍 A simple template to start to code your own and personalized Discord bot in Python
+A simple template to start to code your own and personalized Discord bot in Python
 
 Version: 6.3.0
 """
@@ -17,7 +17,7 @@ from discord.ext import commands
 from discord.ext.commands import Context
 
 
-class FeedbackForm(discord.ui.Modal, title="Feeedback"):
+class FeedbackForm(discord.ui.Modal, title="Feedback"):
     feedback = discord.ui.TextInput(
         label="What do you think about this bot?",
         style=discord.TextStyle.long,

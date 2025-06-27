@@ -1,4 +1,6 @@
-aiohttp
-aiosqlite
+aiohttp~=3.12.13
+aiosqlite~=0.21.0
 discord.py==2.5.2
-python-dotenv
+python-dotenv~=1.1.1
+requests~=2.32.4
+table2ascii~=1.1.3
