@@ -16,25 +16,56 @@ class Racing(commands.Cog, name="racing"):
 
     @commands.hybrid_command(
         name="myracingskill",
-        description="Returns the racing skill of all faction members.",
+        description="Returns your racing skill.",
     )
     async def myracingskill(self, context: Context) -> None:
-        # Extract the Torn member_id
-        member_id = context.author.display_name[context.author.display_name.index("[") + 1:context.author.display_name.index("]")]
+        """
+        Returns the racing skill of the author.
 
-        # TODO: get just member_id's racing skill
-        print(member_id)
+        :param context: The application command context.
+        """
+        # Extract the author's Torn name
+        torn_name = context.author.display_name[:context.author.display_name.index("[") - 1]
+
+        racing_skill = 0.0
+        for index, row in enumerate(self.get_faction_racing_skill()):
+            if row[0] == torn_name:
+                racing_skill = f"{row[1]:.2f}"
+                break
+
+        await context.reply(f"Hi {context.author.display_name}, your racing skill is: {racing_skill}")
 
     @commands.hybrid_command(
-        name="allracingskill",
-        description="Returns the racing skill of all Night's Watch faction members.",
+        name="factionracingskill",
+        description="Returns the racing skill of all faction members.",
     )
-    async def allracingskill(self, context: Context) -> None:
+    async def factionracingskill(self, context: Context) -> None:
         """
         Returns the racing skill of all faction members.
 
         :param context: The application command context.
         """
+        table_data = self.get_faction_racing_skill()
+
+        # sort by racing skill
+        table_data.sort(reverse=True, key=lambda skill_lvl: skill_lvl[1])
+
+        # convert racing skill to string with 2 decimal places
+        for row in table_data:
+            row[1] = f"{row[1]:.2f}"
+
+        output = t2a(
+            header=['Name', 'Racing'],
+            body=table_data,
+            style=PresetStyle.thin_compact,
+            cell_padding=0,
+        )
+
+        await context.author.send(f"```\n{output}\n```")
+        await context.reply(
+            f"Hi {context.author.display_name}, I've sent you a DM with the racing skills of all Night's Watch members.")
+
+    def get_faction_racing_skill(self) -> list:
         key = self.bot.tornstats_api_key
 
         # Read in roster info (for name)
@@ -57,21 +88,7 @@ class Racing(commands.Cog, name="racing"):
             name = roster_members.get(member_id, {}).get('name', 'Unknown')
             table_data.append([name, racing_skill])
 
-        # sort by racing skill
-        table_data.sort(reverse=True, key=lambda skill_lvl: skill_lvl[1])
-
-        # convert racing skill to string with 2 decimal places
-        for row in table_data:
-            row[1] = f"{row[1]:.2f}"
-
-        output = t2a(
-            header=['Name', 'Racing'],
-            body=table_data,
-            style=PresetStyle.thin_compact,
-            cell_padding=0,
-        )
-
-        await context.send(f"```\n{output}\n```")
+        return table_data
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot) -> None:
