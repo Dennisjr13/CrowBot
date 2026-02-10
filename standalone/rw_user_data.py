@@ -3,44 +3,47 @@ Copyright © Dennisjr13 2026-Present - https://github.com/dennisjr13
 Description:
 Simple standalone RW stats script
 """
+import os
 from datetime import datetime
+
 import requests
+from dotenv import load_dotenv
 
-# Setup API Key and Faction ID
-API_KEY = 'abc123'
-FACTION_ID = 16040  # this is WiC
+load_dotenv()
 
-# Find ID in URL: torn.com/war.php?step=rankreport&rankID=36456
-WAR_ID = '36456'
+# Setup API Key and request params
+#API_KEY = 'abc123'
+API_KEY = os.getenv("TORNSTATS_API_KEY")
+PARAMS = {
+    "key": API_KEY,
+    "timestamp": int(datetime.now().timestamp()),
+    "comment": "RW report"
+}
 
-# Find ID in URL: torn.com/war.php?step=chainreport&chainID=58280540
-CHAIN_ID = '58280540'
+FACTION_ID = 16040  # Winter is Coming
+WAR_ID = '36456'  # Find ID in URL: torn.com/war.php?step=rankreport&rankID=36456
+CHAIN_ID = '58280540'  # Find ID in URL: torn.com/war.php?step=chainreport&chainID=58280540
 
-def get_chain_report(api_key, chain_id):
+def torn_get(url):
+    r = requests.get(url, params=PARAMS, timeout=10)
+    r.raise_for_status()
+    return r.json()
+
+def get_chain_report(chain_id):
     url = f"https://api.torn.com/v2/faction/{chain_id}/chainreport"
-    params = {
-        "key": api_key,
-        "timestamp": int(datetime.now().timestamp()),
-        "comment": "CrowBot chainreport"
-    }
-    r = requests.get(url, params=params)
-    return r.json().get("chainreport", {})
+    data = torn_get(url)
+    return data.get("chainreport", {})
 
-def get_war_report(api_key, war_id):
+def get_war_report(war_id):
     url = f"https://api.torn.com/v2/faction/{war_id}/rankedwarreport?selections=members,raw"
-    params = {
-        "key": api_key,
-        "timestamp": int(datetime.now().timestamp()),
-        "comment": "CrowBot warreport"
-    }
-    r = requests.get(url, params=params)
-    return r.json().get('rankedwarreport', {})
+    data = torn_get(url)
+    return data.get('rankedwarreport', {})
 
 # Fetch Ranked War Data
-war_report = get_war_report(api_key=API_KEY, war_id=WAR_ID)
+war_report = get_war_report(war_id=WAR_ID)
 
 # Fetch Chain Data
-chain_report = get_chain_report(api_key=API_KEY, chain_id=CHAIN_ID)
+chain_report = get_chain_report(chain_id=CHAIN_ID)
 
 # Navigate to the factions list
 factions = war_report.get('factions', [])
