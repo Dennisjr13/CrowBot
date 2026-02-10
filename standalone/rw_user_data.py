@@ -3,23 +3,47 @@ Copyright © Dennisjr13 2026-Present - https://github.com/dennisjr13
 Description:
 Simple standalone RW stats script
 """
-
+from datetime import datetime
 import requests
 
 # Setup API Key and Faction ID
 API_KEY = 'abc123'
 FACTION_ID = 16040  # this is WiC
 
-# Find ID in URL: torn.com/factions.php?step=your#/war/12345
+# Find ID in URL: torn.com/war.php?step=rankreport&rankID=36456
 WAR_ID = '36456'
 
+# Find ID in URL: torn.com/war.php?step=chainreport&chainID=58280540
+CHAIN_ID = '58280540'
+
+def get_chain_report(api_key, chain_id):
+    url = f"https://api.torn.com/v2/faction/{chain_id}/chainreport"
+    params = {
+        "key": api_key,
+        "timestamp": int(datetime.now().timestamp()),
+        "comment": "CrowBot chainreport"
+    }
+    r = requests.get(url, params=params)
+    return r.json().get("chainreport", {})
+
+def get_war_report(api_key, war_id):
+    url = f"https://api.torn.com/v2/faction/{war_id}/rankedwarreport?selections=members,raw"
+    params = {
+        "key": api_key,
+        "timestamp": int(datetime.now().timestamp()),
+        "comment": "CrowBot warreport"
+    }
+    r = requests.get(url, params=params)
+    return r.json().get('rankedwarreport', {})
+
 # Fetch Ranked War Data
-url = f"https://api.torn.com/v2/faction/{WAR_ID}/rankedwarreport?selections=members,raw&key={API_KEY}"
-response = requests.get(url)
-data = response.json()
+war_report = get_war_report(api_key=API_KEY, war_id=WAR_ID)
+
+# Fetch Chain Data
+chain_report = get_chain_report(api_key=API_KEY, chain_id=CHAIN_ID)
 
 # Navigate to the factions list
-factions = data.get('rankedwarreport', {}).get('factions', [])
+factions = war_report.get('factions', [])
 
 # Find your specific faction
 our_faction = next((f for f in factions if f['id'] == FACTION_ID), None)
@@ -27,11 +51,38 @@ our_faction = next((f for f in factions if f['id'] == FACTION_ID), None)
 if our_faction:
     print(f"Report for {our_faction['name']} (ID: {FACTION_ID})")
     print(f"Total Score: {our_faction['score']}")
-    print(f"Respect Reward: {our_faction['rewards']['respect']}")
+    print(f"War Respect Reward: {our_faction['rewards']['respect']}")
 
-    # List member performance
+    # ---- MAP BONUS RESPECT PER ATTACKER ----
+    bonus_by_attacker = {}
+    for bonus in chain_report.get("bonuses", []):
+        attacker = str(bonus["attacker_id"])
+        bonus_by_attacker[attacker] = (
+            bonus_by_attacker.get(attacker, 0)
+            + bonus.get("respect", 0)
+        )
+
+    chain_members = chain_report.get("members", {})
+
+    # ---- MEMBER PERFORMANCE ----
     print("\nMember Stats:")
     for member in our_faction['members']:
-        print(f"- {member['name']} [{member['id']}]: {member['attacks']} attacks, {member['score']} score")
+        uid = str(member['id'])
+
+        chain_member = chain_members.get(uid, {})
+        raw_chain_respect = chain_member.get("respect", 0)
+        bonus_chain_respect = bonus_by_attacker.get(uid, 0)
+        adjusted_chain_respect_member = raw_chain_respect - bonus_chain_respect
+
+        line = (
+            f"- {member['name']} [{member['id']}]: "
+            f"{member['attacks']} war hits, "
+            f"{member['score']} score"
+        )
+
+        if bonus_chain_respect > 0:
+            line += f" (includes Chain Bonus: {bonus_chain_respect:.2f})"
+
+        print(line)
 else:
     print(f"Faction {FACTION_ID} not found in this war report.")
