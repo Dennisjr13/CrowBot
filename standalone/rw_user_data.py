@@ -77,11 +77,11 @@ if our_faction:
         line = (
             f"- {member['name']} [{member['id']}]: "
             f"{member['attacks']} war hits, "
-            f"{member['score']} score"
+            f"{member['score'] - bonus_chain_respect} score"
         )
 
         if bonus_chain_respect > 0:
-            line += f" (includes Chain Bonus: {bonus_chain_respect:.2f})"
+            line += f", removed chain bonus ({bonus_chain_respect})"
 
         print(line)
 else:
