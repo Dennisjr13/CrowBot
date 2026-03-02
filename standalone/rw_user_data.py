@@ -20,8 +20,8 @@ if not API_KEY:
 
 # Configure war and chain ids
 FACTION_ID = 16040  # Winter is Coming
-WAR_ID = 36456  # Find ID in URL: torn.com/war.php?step=rankreport&rankID=36456
-CHAIN_IDS = [58280540, ]  # Find ID in URL: torn.com/war.php?step=chainreport&chainID=58280540
+WAR_ID = 37835  # Find ID in URL: torn.com/war.php?step=rankreport&rankID=36456
+CHAIN_IDS = [59410631, 59436068, 59436567, 59444062, 59452668, 59461502, 59462422, 59464944, 59469979, 59475433, 59483312, ]  # Find ID in URL: torn.com/war.php?step=chainreport&chainID=58280540
 
 ENERGY_PER_HIT = 25
 
@@ -111,7 +111,6 @@ if our_faction:
         chain_assists = 0
         war_attacks = member.get('attacks', 0)
         chain_total_respect = 0.0
-        chain_avg_respect = 0.0
         chain_losses = 0
         chain_draws = 0
         chain_escapes = 0
@@ -125,12 +124,12 @@ if our_faction:
                 chain_hosp += chain_member.get("attacks", 0).get("hospitalize", 0)
                 chain_assists += chain_member.get("attacks", 0).get("assists", 0)
                 chain_total_respect += chain_member.get("respect", 0).get("total", 0)
-                chain_avg_respect += chain_member.get("respect", 0).get("average", 0)
                 chain_losses += chain_member.get("attacks", 0).get("losses", 0)
                 chain_draws += chain_member.get("attacks", 0).get("draws", 0)
                 chain_escapes += chain_member.get("attacks", 0).get("escapes", 0)
 
         total_hits = chain_assists + war_attacks + chain_losses + chain_draws + chain_escapes
+        chain_avg_respect = chain_total_respect / chain_attacks if chain_attacks > 0 else 0.0
 
         rows.append([
             f"{member.get('name', 'Unknown')} [{member.get('id', 0)}]",
